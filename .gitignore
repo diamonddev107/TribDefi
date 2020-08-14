@@ -1,0 +1,10 @@
+# IDE files
+.idea
+
+node_modules
+.private
+.env
+
+#Buidler files
+cache
+artifacts
