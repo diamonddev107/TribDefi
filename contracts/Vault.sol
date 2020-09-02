@@ -22,10 +22,6 @@ contract Vault is IVault, ReentrancyGuard {
   /// kovan - 0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB
   address public nexusGovernace; // = 0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB;
 
-  /// @notice mStable savingsManager contract.
-  /// It can be changed through governance.
-  address public savingsManager;
-
   /// @notice mStable savingsContract contract.
   /// It can be changed through governance.
   address public savingsContract;
@@ -39,8 +35,7 @@ contract Vault is IVault, ReentrancyGuard {
   constructor(address _reserve, address _nexus) public {
     reserve = _reserve;
     nexusGovernace = _nexus;
-    savingsManager = IMStable(nexusGovernace).getModule(keccak256('SavingsManager'));
-    savingsContract = IMStable(savingsManager).savingsContracts(reserve);
+    savingsContract = _fetchMStableSavings();
   }
 
   /// @notice Deposits reserve into savingsAccount.
@@ -89,11 +84,20 @@ contract Vault is IVault, ReentrancyGuard {
   /// @notice Allows anyone to migrate all reserve to new savings contract.
   /// @dev It is only triggered if the savingsContract has been changed by governance.
   function migrateSavings() external {
+    address currentSavingsContract = _fetchMStableSavings();
     require(
-      IMStable(nexusGovernace).getModule(keccak256('SavingsManager')) != savingsManager,
+      currentSavingsContract != savingsContract,
       'Already using latest Savings Contract'
     );
     _swap();
+  }
+
+
+  // @notice Gets the current mStable Savings Contract address.
+  // @return address of mStable Savings Contract.
+  function _fetchMStableSavings() internal view returns (address) {
+    address manager = IMStable(nexusGovernace).getModule(keccak256('SavingsManager'));
+    return IMStable(savingsManager).savingsContracts(reserve);
   }
 
   // @notice Worker function to send funds to savings account.
@@ -119,8 +123,7 @@ contract Vault is IVault, ReentrancyGuard {
   function _swap() internal {
     uint256 _balance = getBalance();
     _redeemFromSavings(address(this), _balance);
-    savingsManager = IMStable(nexusGovernace).getModule(keccak256('SavingsManager'));
-    savingsContract = IMStable(savingsManager).savingsContracts(reserve);
+    savingsContract = _fetchMStableSavings();
     _sendToSavings(_balance);
 
     emit FundMigration(_balance);
