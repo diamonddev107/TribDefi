@@ -97,7 +97,7 @@ contract Vault is IVault, ReentrancyGuard {
   // @return address of mStable Savings Contract.
   function _fetchMStableSavings() internal view returns (address) {
     address manager = IMStable(nexusGovernace).getModule(keccak256('SavingsManager'));
-    return IMStable(savingsManager).savingsContracts(reserve);
+    return IMStable(manager).savingsContracts(reserve);
   }
 
   // @notice Worker function to send funds to savings account.

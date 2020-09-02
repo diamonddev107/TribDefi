@@ -10,7 +10,7 @@ contract MStableLendMock is Vault {
   constructor(address _reserve, address _nexus) public Vault(_reserve, _nexus) {}
 
   function updateContracts() public {
-    savingsManager = IMStable(nexusGovernace).getModule(keccak256('SavingsManager'));
+    address savingsManager = IMStable(nexusGovernace).getModule(keccak256('SavingsManager'));
     savingsContract = IMStable(savingsManager).savingsContracts(reserve);
   }
 }
