@@ -36,6 +36,7 @@ contract Vault is IVault, ReentrancyGuard {
     reserve = _reserve;
     nexusGovernace = _nexus;
     savingsContract = _fetchMStableSavings();
+    _approveMax(reserve, savingsContract);
   }
 
   /// @notice Deposits reserve into savingsAccount.
@@ -85,13 +86,14 @@ contract Vault is IVault, ReentrancyGuard {
   /// @dev It is only triggered if the savingsContract has been changed by governance.
   function migrateSavings() external {
     address currentSavingsContract = _fetchMStableSavings();
-    require(
-      currentSavingsContract != savingsContract,
-      'Already using latest Savings Contract'
-    );
+    require(currentSavingsContract != savingsContract, 'Already using latest Savings Contract');
     _swap();
   }
 
+  function _approveMax(address token, address spender) internal {
+    uint max = uint(-1);
+    IERC20(token).safeApprove(spender, max);
+  }
 
   // @notice Gets the current mStable Savings Contract address.
   // @return address of mStable Savings Contract.
@@ -103,7 +105,11 @@ contract Vault is IVault, ReentrancyGuard {
   // @notice Worker function to send funds to savings account.
   // @param _amount The amount to send.
   function _sendToSavings(uint256 _amount) internal {
-    IERC20(reserve).safeApprove(savingsContract, _amount);
+
+    if(IERC20(reserve).allowance(address(this), savingsContract) < _amount) {
+      _approveMax(reserve, savingsContract);
+    }
+
     IMStable(savingsContract).depositSavings(_amount);
   }
 
@@ -124,8 +130,8 @@ contract Vault is IVault, ReentrancyGuard {
     uint256 _balance = getBalance();
     _redeemFromSavings(address(this), _balance);
     savingsContract = _fetchMStableSavings();
+    _approveMax(reserve, savingsContract);
     _sendToSavings(_balance);
-
     emit FundMigration(_balance);
   }
 }

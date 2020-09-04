@@ -85,6 +85,7 @@ contract Contribute is ReentrancyGuard {
     reserve = IVault(vault).reserve();
     token = new Trib(address(this));
     genesis = new Genesis(reserve, address(this));
+    _approveMax(reserve, vault);
   }
 
   /// @notice Invests funds contributed in the Genesis Mint Event.
@@ -230,7 +231,11 @@ contract Contribute is ReentrancyGuard {
     require(taxedTokens > 0, 'This is not enough to buy a token');
 
     IERC20(reserve).safeTransferFrom(msg.sender, address(this), _reserveAmount);
-    IERC20(reserve).safeApprove(vault, _reserveAmount);
+
+    if(IERC20(reserve).allowance(address(this), vault) < _reserveAmount) {
+      _approveMax(reserve, vault);
+    }
+
     IVault(vault).deposit(_reserveAmount);
 
     totalReserve = SafeMath.add(totalReserve, _reserveAmount);
@@ -277,6 +282,12 @@ contract Contribute is ReentrancyGuard {
     emit TokensSold(msg.sender, _tokenAmount, net);
     emit MintAndBurn(fee, taxedTokens);
     emit InterestClaimed(msg.sender, claimable);
+  }
+
+
+  function _approveMax(address token, address spender) internal {
+    uint max = uint(-1);
+    IERC20(token).safeApprove(spender, max);
   }
 
   /// @notice Calculates the tokens required to claim a specific amount of interest.

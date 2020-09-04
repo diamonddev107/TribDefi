@@ -320,4 +320,13 @@ describe("Testing Contribute functionality after Genesis", async () => {
     await expect(vault.redeem(value)).to.be.revertedWith('Not enough funds');
   })
 
+  it('Should allow deposits after change in Savings Manager', async ()=> {
+    const address = Alice.getAddress();
+    const before = await trib.balanceOf(address);
+    const amount = ethers.utils.parseEther('1000');
+    const tokens = await contribute.getReserveToTokensTaxed(amount);
+    await contribute.invest(amount);
+    expect(await trib.balanceOf(address)).to.equal(tokens.add(before));
+  })
+
 });
