@@ -232,7 +232,7 @@ contract Contribute is ReentrancyGuard {
 
     IERC20(reserve).safeTransferFrom(msg.sender, address(this), _reserveAmount);
 
-    if(IERC20(reserve).allowance(address(this), vault) < _reserveAmount) {
+    if (IERC20(reserve).allowance(address(this), vault) < _reserveAmount) {
       _approveMax(reserve, vault);
     }
 
@@ -284,9 +284,8 @@ contract Contribute is ReentrancyGuard {
     emit InterestClaimed(msg.sender, claimable);
   }
 
-
   function _approveMax(address token, address spender) internal {
-    uint max = uint(-1);
+    uint256 max = uint256(-1);
     IERC20(token).safeApprove(spender, max);
   }
 

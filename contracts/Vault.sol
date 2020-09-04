@@ -91,7 +91,7 @@ contract Vault is IVault, ReentrancyGuard {
   }
 
   function _approveMax(address token, address spender) internal {
-    uint max = uint(-1);
+    uint256 max = uint256(-1);
     IERC20(token).safeApprove(spender, max);
   }
 
@@ -105,8 +105,7 @@ contract Vault is IVault, ReentrancyGuard {
   // @notice Worker function to send funds to savings account.
   // @param _amount The amount to send.
   function _sendToSavings(uint256 _amount) internal {
-
-    if(IERC20(reserve).allowance(address(this), savingsContract) < _amount) {
+    if (IERC20(reserve).allowance(address(this), savingsContract) < _amount) {
       _approveMax(reserve, savingsContract);
     }
 

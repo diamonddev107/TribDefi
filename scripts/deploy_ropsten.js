@@ -11,7 +11,7 @@ const nexusAddress = '0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB';
 
 let overrides = {
   // The maximum units of gas for the transaction to use
-  gasLimit: 9000000,
+  gasLimit: 8000000,
   gasPrice: ethers.utils.parseUnits('9.0', 'gwei'),
 };
 
