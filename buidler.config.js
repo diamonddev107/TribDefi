@@ -1,5 +1,6 @@
 usePlugin("@nomiclabs/buidler-waffle");
 usePlugin("@nomiclabs/buidler-web3");
+usePlugin("@nomiclabs/buidler-etherscan");
 
 const fs = require('fs');
 const mnemonic = fs.readFileSync(".private").toString().trim();
@@ -25,6 +26,9 @@ module.exports = {
   solc: {
     version: "0.6.6",
   },
+  etherscan: {
+    apiKey: "TISS591URX3AHJGI5ZBW47I7KQIVEXTC79",
+  },
   networks: {
     mainnet: {
       url: "https://mainnet.infura.io/v3/13749734f374422692b1699e51b0877f",
@@ -39,6 +43,16 @@ module.exports = {
     ropsten: {
       url: "https://ropsten.infura.io/v3/13749734f374422692b1699e51b0877f",
       chainId: 3,
+      gas: "auto",
+      gasPrice: "auto",
+      accounts: {
+        mnemonic: mnemonic,
+        path: "m/44'/60'/0'/0",
+      },
+    },
+    kovan: {
+      url: "https://kovan.infura.io/v3/13749734f374422692b1699e51b0877f",
+      chainId: 42,
       gas: "auto",
       gasPrice: "auto",
       accounts: {

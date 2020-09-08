@@ -20,7 +20,7 @@ contract Vault is IVault, ReentrancyGuard {
   /// It should not change.
   /// mainnet - 0xAFcE80b19A8cE13DEc0739a1aaB7A028d6845Eb3
   /// kovan - 0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB
-  address public nexusGovernace; // = 0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB;
+  address public nexusGovernance; // = 0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB;
 
   /// @notice mStable savingsContract contract.
   /// It can be changed through governance.
@@ -34,7 +34,7 @@ contract Vault is IVault, ReentrancyGuard {
 
   constructor(address _reserve, address _nexus) public {
     reserve = _reserve;
-    nexusGovernace = _nexus;
+    nexusGovernance = _nexus;
     savingsContract = _fetchMStableSavings();
     _approveMax(reserve, savingsContract);
   }
@@ -98,7 +98,7 @@ contract Vault is IVault, ReentrancyGuard {
   // @notice Gets the current mStable Savings Contract address.
   // @return address of mStable Savings Contract.
   function _fetchMStableSavings() internal view returns (address) {
-    address manager = IMStable(nexusGovernace).getModule(keccak256('SavingsManager'));
+    address manager = IMStable(nexusGovernance).getModule(keccak256('SavingsManager'));
     return IMStable(manager).savingsContracts(reserve);
   }
 

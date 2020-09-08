@@ -284,9 +284,9 @@ contract Contribute is ReentrancyGuard {
     emit InterestClaimed(msg.sender, claimable);
   }
 
-  function _approveMax(address token, address spender) internal {
+  function _approveMax(address tkn, address spender) internal {
     uint256 max = uint256(-1);
-    IERC20(token).safeApprove(spender, max);
+    IERC20(tkn).safeApprove(spender, max);
   }
 
   /// @notice Calculates the tokens required to claim a specific amount of interest.
