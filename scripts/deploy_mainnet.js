@@ -11,21 +11,10 @@ let overrides = {
   // The maximum units of gas for the transaction to use
   gasLimit: 9000000,
   // Update the gas price to the latest
-  gasPrice: ethers.utils.parseUnits('9.0', 'gwei'),
+  gasPrice: ethers.utils.parseUnits('80.0', 'gwei'),
 };
 
 async function main() {
-
-  const IERC20ABI = [
-    'function approve(address, uint) external returns (bool)',
-    'function transfer(address, uint) external returns (bool)',
-  ];
-
-  this.reserve = new ethers.Contract(reserveAddress, IERC20ABI, provider);
-
-  const Reserve = await ethers.getContractFactory('IERC20');
-  this.reserve = await Reserve.attach(reserveAddress);
-
   const Vault = await ethers.getContractFactory('Vault');
   this.vault = await Vault.deploy(reserveAddress, nexusAddress, overrides);
   await this.vault.deployed();
