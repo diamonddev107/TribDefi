@@ -59,6 +59,18 @@ Deploy to the Ethereum mainnet with
 npm run deploy:main
 ```
 
+## Deployed contracts
+
+### Mainnet
+
+Vault - 0xdA1fD36cfC50ED03ca4dd388858A78C904379fb3
+
+Genesis - 0xf48d1FfBed1D9b87cC0B4410d16230B35BdFC28A
+
+Contribute - 0x0DdfE92234b9DCA2de799736bBBa1D2F25CFC3b8
+
+Trib Token - 0xe09216F1d343Dd39D6Aa732a08036fee48555Af0
+
 ## License
 
 MIT
