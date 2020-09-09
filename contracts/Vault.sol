@@ -18,9 +18,7 @@ contract Vault is IVault, ReentrancyGuard {
 
   /// @notice mStable governance proxy contract.
   /// It should not change.
-  /// mainnet - 0xAFcE80b19A8cE13DEc0739a1aaB7A028d6845Eb3
-  /// kovan - 0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB
-  address public nexusGovernance; // = 0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB;
+  address public nexusGovernance;
 
   /// @notice mStable savingsContract contract.
   /// It can be changed through governance.

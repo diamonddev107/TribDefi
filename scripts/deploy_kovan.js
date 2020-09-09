@@ -8,7 +8,7 @@ let Alice = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
 let overrides = {
   // The maximum units of gas for the transaction to use
   gasLimit: 8000000,
-  gasPrice: ethers.utils.parseUnits('10.0', 'gwei'),
+  gasPrice: ethers.utils.parseUnits('100.0', 'gwei'),
 };
 
 async function setup() {
