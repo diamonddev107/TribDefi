@@ -44,7 +44,7 @@ let randomWallet = ethers.Wallet.createRandom();
 
 ```
 
-Load the first three accounts with Kovan Eth from the [faucet](https://faucet.kovan.network/).
+Load the account with Kovan Eth from the [faucet](https://faucet.kovan.network/).
 
 
 ```bash
