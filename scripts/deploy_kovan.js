@@ -1,5 +1,6 @@
 require('dotenv').config({path: '.env'});
 const fs = require('fs');
+const moment = require('moment');
 const provider = ethers.getDefaultProvider('kovan');
 const mnemonic = fs.readFileSync('.private').toString().trim();
 const endTime = 1600646400; // Monday September 21 2020 00:00:00 GMT
@@ -10,7 +11,7 @@ let Charlie = ethers.Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/2").connect(p
 let overrides = {
   // The maximum units of gas for the transaction to use
   gasLimit: 8000000,
-  gasPrice: ethers.utils.parseUnits('9.0', 'gwei'),
+  gasPrice: ethers.utils.parseUnits('10.0', 'gwei'),
 };
 
 async function approveAll(contract, reserve) {
@@ -41,24 +42,53 @@ async function setup() {
   this.contribute = await Contribute.deploy(this.vault.address, endTime, overrides);
   await this.contribute.deployed();
   console.log('Contribute deployed to:', this.contribute.address);
-
-  const genesisAddress = await contribute.genesis();
-  this.genesis = await ethers.getContractAt("Genesis", genesisAddress);
-
-  await approveAll(this.contribute, this.reserve);
-  await approveAll(this.genesis, this.reserve);
 }
 
-async function invest(contribute) {
-  this.value = ethers.utils.parseEther('10');
-  await contribute.connect(Alice).invest(this.value, overrides);
-  await contribute.connect(Bob).invest(this.value, overrides);
-  let tx = await contribute.connect(Charlie).invest(this.value, overrides);
+async function simulateGenesis() {
+  let value = ethers.utils.parseEther('10000');
+  await this.reserve.transfer(Bob.getAddress(), value);
+  await this.reserve.transfer(Charlie.getAddress(), value);
+
+  let tx = await this.contribute.generateGenesisMock(endTime, overrides);
+  await tx.wait(1);
+
+  const genesisAddress = await contribute.genesis();
+  this.genesis = await ethers.getContractAt("GenesisMock", genesisAddress);
+
+  await approveAll(this.genesis, this.reserve);
+
+  await this.genesis.connect(Alice).deposit(value.div(10), overrides);
+  await this.genesis.connect(Bob).deposit(value.div(10), overrides);
+  tx = await this.genesis.connect(Charlie).deposit(value.div(10), overrides);
+  await tx.wait(1);
+
+  tx = await this.contribute.finishMintEvent(overrides);
+  await tx.wait(1);
+
+  await approveAll(this.contribute, this.reserve);
+
+  tx = await this.genesis.setEndTime(moment().unix(), overrides);
+  await tx.wait(1);
+
+  await this.genesis.connect(Alice).claim(overrides);
+  await this.genesis.connect(Bob).claim(overrides);
+  tx = await this.genesis.connect(Charlie).claim(overrides);
+  await tx.wait(1);
+}
+
+async function invest() {
+  let value = ethers.utils.parseEther('1000');
+
+  await this.contribute.connect(Alice).invest(value, overrides);
+  await this.contribute.connect(Bob).invest(value, overrides);
+  let tx = await this.contribute.connect(Charlie).invest(value, overrides);
   await tx.wait(1);
 }
 
 async function main() {
   await setup();
+  await simulateGenesis();
+  await invest();
 }
 
 // We recommend this pattern to be able to use async/await everywhere
