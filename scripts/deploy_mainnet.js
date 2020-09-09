@@ -11,7 +11,7 @@ let overrides = {
   // The maximum units of gas for the transaction to use
   gasLimit: 9000000,
   // Update the gas price to the latest
-  gasPrice: ethers.utils.parseUnits('80.0', 'gwei'),
+  gasPrice: ethers.utils.parseUnits('90.0', 'gwei'),
 };
 
 async function main() {
