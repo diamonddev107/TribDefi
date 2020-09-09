@@ -17,11 +17,8 @@ contract Genesis is ReentrancyGuard {
   event Deposit(address indexed from, uint256 amount);
   event Claim(address indexed user, uint256 amount);
 
-  /// @notice Duration of the Genesis Mint Event (GME).
-  uint256 public constant DURATION = 259200; // 72 hours
-
-  /// @notice Time in which the GME started.
-  uint256 public timeDeployed;
+  /// @notice End date and time of the Genesis Mint Event (GME).
+  uint256 public endTime;
 
   /// @notice Total tokens acquired during the GME.
   uint256 public totalTokensReceived;
@@ -41,19 +38,19 @@ contract Genesis is ReentrancyGuard {
   bool private _toggle;
 
   modifier GMEOpen {
-    require(block.timestamp <= timeDeployed.add(DURATION), 'GME is over');
+    require(block.timestamp <= endTime, 'GME is over');
     _;
   }
 
   modifier GMEOver {
-    require(block.timestamp > timeDeployed.add(DURATION), 'GME not over');
+    require(block.timestamp > endTime, 'GME not over');
     _;
   }
 
-  constructor(address _reserve, address _contribute) public {
+  constructor(address _reserve, address _contribute, uint256 _endTime) public {
     reserve = _reserve;
     contribute = _contribute;
-    timeDeployed = block.timestamp;
+    endTime = _endTime;
   }
 
   /// @notice Receives mUSD from accounts participating in the GME

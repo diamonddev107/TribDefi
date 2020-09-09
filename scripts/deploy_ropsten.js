@@ -8,6 +8,7 @@ let Charlie = ethers.Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/2").connect(p
 
 const reserveAddress = '0x4E1000616990D83e56f4b5fC6CC8602DcfD20459';
 const nexusAddress = '0xeD04Cd19f50F893792357eA53A549E23Baf3F6cB';
+const endTime = 1600646400; // Monday September 21 2020 00:00:00 GMT
 
 let overrides = {
   // The maximum units of gas for the transaction to use
@@ -40,7 +41,7 @@ async function setup() {
   await this.vault.deployed();
 
   const Contribute = await ethers.getContractFactory('ContributeMock');
-  this.contribute = await Contribute.deploy(this.vault.address, overrides);
+  this.contribute = await Contribute.deploy(this.vault.address, endTime, overrides);
   await this.contribute.deployed();
   console.log('Contribute deployed to:', this.contribute.address);
 

@@ -5,6 +5,7 @@ const mnemonic = fs.readFileSync('.private').toString().trim();
 const wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
 const reserveAddress = '0xe2f2a5C287993345a840Db3B0845fbC70f5935a5';
 const nexusAddress = '0xAFcE80b19A8cE13DEc0739a1aaB7A028d6845Eb3';
+const endTime = 1600646400; // Monday September 21 2020 00:00:00 GMT
 
 let overrides = {
   // The maximum units of gas for the transaction to use
@@ -29,8 +30,8 @@ async function main() {
   this.vault = await Vault.deploy(reserveAddress, nexusAddress, overrides);
   await this.vault.deployed();
 
-  const Contribute = await ethers.getContractFactory('ContributeMock');
-  this.contribute = await Contribute.deploy(this.vault.address, overrides);
+  const Contribute = await ethers.getContractFactory('Contribute');
+  this.contribute = await Contribute.deploy(this.vault.address, endTime, overrides);
   await this.contribute.deployed();
   console.log('Contribute deployed to:', this.contribute.address);
 }

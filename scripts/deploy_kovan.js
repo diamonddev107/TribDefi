@@ -2,6 +2,7 @@ require('dotenv').config({path: '.env'});
 const fs = require('fs');
 const provider = ethers.getDefaultProvider('kovan');
 const mnemonic = fs.readFileSync('.private').toString().trim();
+const endTime = 1600646400; // Monday September 21 2020 00:00:00 GMT
 let Alice = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
 let Bob = ethers.Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/1").connect(provider);
 let Charlie = ethers.Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/2").connect(provider);
@@ -37,7 +38,7 @@ async function setup() {
   await this.vault.deployed();
 
   const Contribute = await ethers.getContractFactory('ContributeMock');
-  this.contribute = await Contribute.deploy(this.vault.address, overrides);
+  this.contribute = await Contribute.deploy(this.vault.address, endTime, overrides);
   await this.contribute.deployed();
   console.log('Contribute deployed to:', this.contribute.address);
 

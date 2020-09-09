@@ -2,12 +2,13 @@ const { expect } = require("chai");
 const timeMachine = require("ganache-time-traveler");
 const curve = require("./utils.js");
 
-const duration = 259200;
+const endTime = 1600646400; // Monday September 21 2020 00:00:00 GMT
 
 let Alice;
 let Bob;
 let Charlie;
 let savings, mUSD, vault, contribute, genesis, nexus;
+let snapshotID;
 
 const deployment = async () => {
   const accounts = await ethers.getSigners();
@@ -30,7 +31,7 @@ const deployment = async () => {
   await vault.deployed();
 
   const Contribute = await ethers.getContractFactory("ContributeMock");
-  contribute = await Contribute.deploy(vault.address);
+  contribute = await Contribute.deploy(vault.address, endTime);
   await contribute.deployed();
 
   const savingsAddress = await vault.savingsContract();
@@ -47,6 +48,7 @@ const deployment = async () => {
 
   const value = ethers.utils.parseEther("10000000000");
   await mUSD.approve(genesis.address, value);
+
 }
 
 describe("Testing Genesis Mint Event" , async () => {
@@ -57,6 +59,8 @@ describe("Testing Genesis Mint Event" , async () => {
   const totalInvested = aliceInv.add(bobInv).add(charlieInv);
 
   before(async () => {
+    let snapshot = await timeMachine.takeSnapshot();
+    snapshotId = snapshot['result'];
     await deployment();
   })
 
@@ -144,7 +148,7 @@ describe("Testing Genesis Mint Event" , async () => {
 
   it('Should stop accepting deposits after GME is over', async () => {
     const value = ethers.utils.parseEther("1000");
-    await timeMachine.advanceTimeAndBlock(duration+1);
+    await timeMachine.advanceBlockAndSetTime(endTime+1);
     await expect(genesis.deposit(value)).to.be.revertedWith("GME is over");
   });
 
@@ -241,7 +245,7 @@ const simulateGenesis = async () => {
   await genesis.connect(Bob).deposit(bobInv);
   await genesis.connect(Charlie).deposit(charlieInv);
 
-  await timeMachine.advanceTimeAndBlock(duration+1);
+  await timeMachine.advanceBlockAndSetTime(endTime+1);
   await genesis.concludeGME();
 
   await genesis.claim();
@@ -250,9 +254,11 @@ const simulateGenesis = async () => {
 
 }
 
+
 describe("Testing Contribute functionality after Genesis", async () => {
 
   before(async () => {
+    await timeMachine.revertToSnapshot(snapshotId);
     await deployment();
     await simulateGenesis();
   })

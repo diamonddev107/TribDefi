@@ -6,7 +6,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@nomiclabs/buidler/console.sol';
 
 contract ContributeMock is Contribute, Ownable {
-  constructor(address _vault) public Contribute(_vault) {}
+  constructor(address _vault, uint256 _endTime) public Contribute(_vault, _endTime) {}
 
   function withdraw() external onlyOwner() {
     IVault(vault).redeem(IVault(vault).getBalance());

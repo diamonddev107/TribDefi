@@ -80,11 +80,11 @@ contract Contribute is ReentrancyGuard {
     _;
   }
 
-  constructor(address _vault) public {
+  constructor(address _vault, uint256 _endTime) public {
     vault = _vault;
     reserve = IVault(vault).reserve();
     token = new Trib(address(this));
-    genesis = new Genesis(reserve, address(this));
+    genesis = new Genesis(reserve, address(this), _endTime);
     _approveMax(reserve, vault);
   }
 
