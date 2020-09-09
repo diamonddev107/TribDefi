@@ -42,7 +42,7 @@ const deployment = async () => {
   const genesisAddress = await contribute.genesis();
   genesis = await ethers.getContractAt("Genesis", genesisAddress);
 
-  const nexusAddress = await vault.nexusGovernace();
+  const nexusAddress = await vault.nexusGovernance();
   nexus = await ethers.getContractAt("NexusMock", nexusAddress);
 
   const value = ethers.utils.parseEther("10000000000");
