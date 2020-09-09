@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "deploy:main": "buidler run scripts/deploy_mainnet.js --network mainnet",
-    "deploy:ropsten": "buidler run scripts/deploy_ropsten.js --network ropsten",
     "deploy:kovan": "buidler run scripts/deploy_kovan.js --network kovan",
     "lint": "solhint -f table contracts/*.sol contracts/**/*.sol",
     "lint:fix": "prettier --write contracts",

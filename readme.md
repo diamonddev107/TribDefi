@@ -26,9 +26,7 @@ npm run test
 
 ## Deployment
 
-### Ropsten
-
-Contribute requires [mUSD](https://docs.mstable.org/protocol/deployed-addresses) from the Ropsten testnet in order to be deployed.
+### Kovan
 
 #### Instructions
 
@@ -46,12 +44,11 @@ let randomWallet = ethers.Wallet.createRandom();
 
 ```
 
-Load the first three accounts with Ropsten Eth from the [faucet](https://faucet.ropsten.be/) and ask for at least 30 Ropsten mUSD at the [mStable Discord](https://discord.gg/pgCVG7e).
+Load the first three accounts with Kovan Eth from the [faucet](https://faucet.kovan.network/).
 
-After you have distributed 10 mUSD to the first three deploy on Ropsten with
 
 ```bash
-npm run deploy:test
+npm run deploy:kovan
 ```
 
 ### Mainnet

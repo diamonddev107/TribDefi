@@ -47,7 +47,11 @@ contract Genesis is ReentrancyGuard {
     _;
   }
 
-  constructor(address _reserve, address _contribute, uint256 _endTime) public {
+  constructor(
+    address _reserve,
+    address _contribute,
+    uint256 _endTime
+  ) public {
     reserve = _reserve;
     contribute = _contribute;
     endTime = _endTime;
