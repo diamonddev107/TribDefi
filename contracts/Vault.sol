@@ -73,9 +73,9 @@ contract Vault is IVault, ReentrancyGuard {
   function getBalance() public override view returns (uint256 _balance) {
     IMStable mStableSavings = IMStable(savingsContract);
 
-    _balance = mStableSavings.creditBalances(address(this))
-    .mul(mStableSavings.exchangeRate())
-    .div(1e18);
+    _balance = mStableSavings.creditBalances(address(this)).mul(mStableSavings.exchangeRate()).div(
+      1e18
+    );
   }
 
   /// @notice Allows anyone to migrate all reserve to new savings contract.

@@ -120,9 +120,7 @@ contract Contribute is ReentrancyGuard {
   function claimInterest() external GMEOver {
     uint256 balance = token.balanceOf(msg.sender);
     uint256 totalRequired = totalClaimRequired();
-    uint256 totalToClaim = balance < totalRequired
-      ? balance
-      : totalRequired;
+    uint256 totalToClaim = balance < totalRequired ? balance : totalRequired;
     _sell(totalToClaim);
   }
 
@@ -151,7 +149,7 @@ contract Contribute is ReentrancyGuard {
     uint256 vaultBalance = IVault(vault).getBalance();
     // Sometimes mStable returns a value lower than the
     // deposit because their exchange rate gets updated after the deposit.
-    if(vaultBalance > totalReserve) {
+    if (vaultBalance > totalReserve) {
       interest = vaultBalance - totalReserve;
     }
   }
