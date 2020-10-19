@@ -2,7 +2,8 @@ const { expect } = require("chai");
 const timeMachine = require("ganache-time-traveler");
 const curve = require("./utils.js");
 
-const endTime = 1600646400; // Monday September 21 2020 00:00:00 GMT
+const week = 604800;
+const endTime = Math.round(Date.now() / 1000) + week; // Monday September 21 2020 00:00:00 GMT
 
 let Alice;
 let Bob;
