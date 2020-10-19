@@ -41,7 +41,7 @@ contract Vault is IVault, ReentrancyGuard {
   /// @dev It is part of Vault's interface.
   /// @param amount Value to be deposited.
   /// @return True if successful.
-  function deposit(uint256 amount) public override returns (bool) {
+  function deposit(uint256 amount) external override returns (bool) {
     require(amount > 0, 'Amount must be greater than 0');
 
     IERC20(reserve).safeTransferFrom(msg.sender, address(this), amount);
@@ -56,7 +56,7 @@ contract Vault is IVault, ReentrancyGuard {
   /// @dev It is part of Vault's interface.
   /// @param amount Value to be redeemed.
   /// @return True if successful.
-  function redeem(uint256 amount) public override nonReentrant returns (bool) {
+  function redeem(uint256 amount) external override nonReentrant returns (bool) {
     require(amount > 0, 'Amount must be greater than 0');
     require(amount <= balance[msg.sender], 'Not enough funds');
 
@@ -69,15 +69,13 @@ contract Vault is IVault, ReentrancyGuard {
 
   /// @notice Returns balance in reserve from the savings contract.
   /// @dev It is part of Vault's interface.
-  /// @return Reserve amount in the savings contract.
-  function getBalance() public override view returns (uint256) {
-    uint256 _balance = IMStable(savingsContract).creditBalances(address(this));
+  /// @return _balance Reserve amount in the savings contract.
+  function getBalance() public override view returns (uint256 _balance) {
+    IMStable mStableSavings = IMStable(savingsContract);
 
-    if (_balance > 0) {
-      _balance = _balance.mul(IMStable(savingsContract).exchangeRate()).div(1e18);
-    }
-
-    return _balance;
+    _balance = mStableSavings.creditBalances(address(this))
+    .mul(mStableSavings.exchangeRate())
+    .div(1e18);
   }
 
   /// @notice Allows anyone to migrate all reserve to new savings contract.

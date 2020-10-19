@@ -118,23 +118,25 @@ contract Contribute is ReentrancyGuard {
 
   /// @notice Sells the maximum amount of tokens required to claim the most interest.
   function claimInterest() external GMEOver {
-    uint256 totalToClaim = token.balanceOf(msg.sender) < totalClaimRequired()
-      ? token.balanceOf(msg.sender)
-      : totalClaimRequired();
+    uint256 balance = token.balanceOf(msg.sender);
+    uint256 totalRequired = totalClaimRequired();
+    uint256 totalToClaim = balance < totalRequired
+      ? balance
+      : totalRequired;
     _sell(totalToClaim);
+  }
+
+  /// @notice Calculates the amount of tokens required to claim a specific interest amount.
+  /// @param amountToClaim Interest amount to be claimed.
+  /// @return Amount of tokens required to claim all specified interest.
+  function claimRequired(uint256 amountToClaim) external view returns (uint256) {
+    return _calculateClaimRequired(amountToClaim);
   }
 
   /// @notice Calculates the amount of tokens required to claim the outstanding interest.
   /// @return Amount of tokens required to claim all the outstanding interest.
   function totalClaimRequired() public view returns (uint256) {
     return _calculateClaimRequired(getInterest());
-  }
-
-  /// @notice Calculates the amount of tokens required to claim a specific interest amount.
-  /// @param amountToClaim Interest amount to be claimed.
-  /// @return Amount of tokens required to claim all specified interest.
-  function claimRequired(uint256 amountToClaim) public view returns (uint256) {
-    return _calculateClaimRequired(amountToClaim);
   }
 
   /// @notice Total amount that has been paid in Taxes
@@ -144,15 +146,14 @@ contract Contribute is ReentrancyGuard {
   }
 
   /// @notice Total outstanding interest accumulated.
-  /// @return Interest in reserve accumulated in lending protocol.
-  function getInterest() public view returns (uint256) {
+  /// @return interest Interest in reserve accumulated in lending protocol.
+  function getInterest() public view returns (uint256 interest) {
     uint256 vaultBalance = IVault(vault).getBalance();
     // Sometimes mStable returns a value lower than the
     // deposit because their exchange rate gets updated after the deposit.
-    if (vaultBalance < totalReserve) {
-      vaultBalance = totalReserve;
+    if(vaultBalance > totalReserve) {
+      interest = vaultBalance - totalReserve;
     }
-    return vaultBalance.sub(totalReserve);
   }
 
   /// @notice Total supply of tokens. This includes burned tokens.
@@ -183,7 +184,7 @@ contract Contribute is ReentrancyGuard {
     if (reserveAmount == 0) {
       return 0;
     }
-    uint256 fee = SafeMath.div(reserveAmount, TAX);
+    uint256 fee = reserveAmount.div(TAX);
     uint256 totalTokens = getReserveToTokens(reserveAmount);
     uint256 taxedTokens = getReserveToTokens(fee);
     return totalTokens.sub(taxedTokens);
@@ -197,8 +198,8 @@ contract Contribute is ReentrancyGuard {
       return 0;
     }
     uint256 reserveAmount = getTokensToReserve(tokenAmount);
-    uint256 fee = SafeMath.div(reserveAmount, TAX);
-    return SafeMath.sub(reserveAmount, fee);
+    uint256 fee = reserveAmount.div(TAX);
+    return reserveAmount.sub(fee);
   }
 
   /// @notice Calculates the amount of tokens in exchange for reserve.
@@ -221,7 +222,7 @@ contract Contribute is ReentrancyGuard {
   /// @dev User must approve the reserve to be spent before investing.
   /// @param _reserveAmount Total reserve value in wei to be exchanged to tokens.
   function _invest(uint256 _reserveAmount) internal nonReentrant {
-    uint256 fee = SafeMath.div(_reserveAmount, TAX);
+    uint256 fee = _reserveAmount.div(TAX);
     require(fee >= 1, 'Transaction amount not sufficient to pay fee');
 
     uint256 totalTokens = getReserveToTokens(_reserveAmount);
@@ -236,9 +237,9 @@ contract Contribute is ReentrancyGuard {
       _approveMax(reserve, vault);
     }
 
-    IVault(vault).deposit(_reserveAmount);
+    require(IVault(vault).deposit(_reserveAmount), 'Vault deposit failed');
 
-    totalReserve = SafeMath.add(totalReserve, _reserveAmount);
+    totalReserve = totalReserve.add(_reserveAmount);
 
     token.mint(BURN_ADDRESS, taxedTokens);
     token.mint(msg.sender, userTokens);
@@ -257,11 +258,11 @@ contract Contribute is ReentrancyGuard {
     require(_tokenAmount > 0, 'Must sell something');
 
     uint256 reserveAmount = getTokensToReserve(_tokenAmount);
-    uint256 fee = SafeMath.div(reserveAmount, TAX);
+    uint256 fee = reserveAmount.div(TAX);
 
     require(fee >= 1, 'Must pay minimum fee');
 
-    uint256 net = SafeMath.sub(reserveAmount, fee);
+    uint256 net = reserveAmount.sub(fee);
     uint256 taxedTokens = _calculateReserveToTokens(
       fee,
       totalReserve.sub(reserveAmount),
@@ -270,8 +271,8 @@ contract Contribute is ReentrancyGuard {
     uint256 claimable = _calculateClaimableAmount(reserveAmount);
     uint256 totalClaim = net.add(claimable);
 
-    totalReserve = SafeMath.sub(totalReserve, net);
-    totalInterestClaimed = SafeMath.add(totalInterestClaimed, claimable);
+    totalReserve = totalReserve.sub(net);
+    totalInterestClaimed = totalInterestClaimed.add(claimable);
 
     token.decreaseSupply(msg.sender, _tokenAmount);
     token.mint(BURN_ADDRESS, taxedTokens);
@@ -301,11 +302,10 @@ contract Contribute is ReentrancyGuard {
   /// @notice Calculates the maximum amount of interest that can be claimed
   /// given a certain value.
   /// @param _amount Value to be used in the calculation.
-  /// @return The interest amount in wei that can be claimed for the given value.
-  function _calculateClaimableAmount(uint256 _amount) internal view returns (uint256) {
+  /// @return _claimable The interest amount in wei that can be claimed for the given value.
+  function _calculateClaimableAmount(uint256 _amount) internal view returns (uint256 _claimable) {
     uint256 interest = getInterest();
-    uint256 claimable = _amount > interest ? interest : _amount;
-    return claimable == 0 ? 0 : claimable;
+    _claimable = _amount > interest ? interest : _amount;
   }
 
   /**
@@ -325,12 +325,12 @@ contract Contribute is ReentrancyGuard {
   /// @param _reserveDelta The amount of reserve in wei to be used in the calculation.
   /// @param _totalReserve The current reserve state to be used in the calculation.
   /// @param _supply The current supply state to be used in the calculation.
-  /// @return token amount in wei.
+  /// @return _supplyDelta token amount in wei.
   function _calculateReserveToTokens(
     uint256 _reserveDelta,
     uint256 _totalReserve,
     uint256 _supply
-  ) internal pure returns (uint256) {
+  ) internal pure returns (uint256 _supplyDelta) {
     uint256 _reserve = _totalReserve;
     uint256 _newReserve = _reserve.add(_reserveDelta);
     // s = sqrt(2 * r / m)
@@ -341,41 +341,37 @@ contract Contribute is ReentrancyGuard {
         .mul(1e18) // compensation for the squared unit
     );
 
-    uint256 _supplyDelta = _newSupply.sub(_supply);
-    return _supplyDelta;
+    _supplyDelta = _newSupply.sub(_supply);
   }
 
   /// @notice Computes the decrease in reserve given an amount of tokens.
   /// @param _supplyDelta The amount of tokens in wei to be used in the calculation.
   /// @param _supply The current supply state to be used in the calculation.
   /// @param _totalReserve The current reserve state to be used in the calculation.
-  /// @return Reserve amount in wei.
+  /// @return _reserveDelta Reserve amount in wei.
   function _calculateTokensToReserve(
     uint256 _supplyDelta,
     uint256 _supply,
     uint256 _totalReserve
-  ) internal pure returns (uint256) {
+  ) internal pure returns (uint256 _reserveDelta) {
     require(_supplyDelta <= _supply, 'Token amount must be less than the supply');
 
     uint256 _newSupply = _supply.sub(_supplyDelta);
 
     uint256 _newReserve = _calculateReserveFromSupply(_newSupply);
 
-    uint256 _reserveDelta = _totalReserve.sub(_newReserve);
-
-    return _reserveDelta;
+    _reserveDelta = _totalReserve.sub(_newReserve);
   }
 
   /// @notice Calculates reserve given a specific supply.
   /// @param _supply The token supply in wei to be used in the calculation.
-  /// @return Reserve amount in wei.
-  function _calculateReserveFromSupply(uint256 _supply) internal pure returns (uint256) {
+  /// @return _reserve Reserve amount in wei.
+  function _calculateReserveFromSupply(uint256 _supply) internal pure returns (uint256 _reserve) {
     // r = s^2 * m / 2
-    uint256 _reserve = _supply
+    _reserve = _supply
       .mul(_supply)
       .div(DIVIDER) // inverse the operation (Divider instead of multiplier)
-      .div(2);
-
-    return _reserve.roundedDiv(1e18); // correction of the squared unit
+      .div(2)
+      .roundedDiv(1e18); // correction of the squared unit
   }
 }

@@ -107,7 +107,7 @@ contract Genesis is ReentrancyGuard {
 
   /// @notice Total funds deposited into the Genesis contract.
   /// @return Current reserve balance of this contract.
-  function totalReserveBalance() public view returns (uint256) {
+  function totalReserveBalance() external view returns (uint256) {
     return IERC20(reserve).balanceOf(address(this));
   }
 
