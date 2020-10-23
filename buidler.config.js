@@ -31,7 +31,7 @@ module.exports = {
   },
   networks: {
     mainnet: {
-      url: "https://mainnet.infura.io/v3/13749734f374422692b1699e51b0877f",
+      url: "https://mainnet.infura.io/v3/4462c5b2ed764c09a5f7b22d261781f0",
       chainId: 1,
       gas: "auto",
       gasPrice: "auto",
@@ -41,7 +41,7 @@ module.exports = {
       },
     },
     ropsten: {
-      url: "https://ropsten.infura.io/v3/13749734f374422692b1699e51b0877f",
+      url: "https://ropsten.infura.io/v3/4462c5b2ed764c09a5f7b22d261781f0",
       chainId: 3,
       gas: "auto",
       gasPrice: "auto",
@@ -51,7 +51,7 @@ module.exports = {
       },
     },
     kovan: {
-      url: "https://kovan.infura.io/v3/13749734f374422692b1699e51b0877f",
+      url: "https://kovan.infura.io/v3/4462c5b2ed764c09a5f7b22d261781f0",
       chainId: 42,
       gas: "auto",
       gasPrice: "auto",
