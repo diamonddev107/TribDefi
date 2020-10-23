@@ -71,6 +71,12 @@ Contribute - 0x0DdfE92234b9DCA2de799736bBBa1D2F25CFC3b8
 
 Trib Token - 0xe09216F1d343Dd39D6Aa732a08036fee48555Af0
 
+## Audit Report
+
+The Contribute smart contract audit was done by [Certik](https://certik.io/).
+
+The full audit report can be found [here](https://github.com/Contribute-Defi/contracts/blob/master/audit/Certik-Contribute-Audit.pdf).
+
 ## License
 
 MIT
