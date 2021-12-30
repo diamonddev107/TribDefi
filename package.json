@@ -1,5 +1,5 @@
 {
-  "name": "contribute_buidler",
+  "name": "TribDefi",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,7 +11,7 @@
     "test": "buidler test"
   },
   "keywords": [],
-  "author": "",
+  "author": "DiamondDev",
   "license": "ISC",
   "devDependencies": {
     "@nomiclabs/buidler": "^1.4.3",
